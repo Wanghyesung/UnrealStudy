@@ -53,6 +53,12 @@ AABCharacterPlayer::AABCharacterPlayer()
 		QuaterMoveAction = InputActionQuaterMoveRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_Attack.IA_Attack'"));
+	if (nullptr != InputActionAttackRef.Object)
+	{
+		AttackAction = InputActionAttackRef.Object;
+	}
+
 	CurrentCharacterControlType = ECharacterControlType::Quater;
 }
 
@@ -78,6 +84,8 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
+	//triggered 해당 키가 눌러졌을 때 함수 실행
+
 	//실제 함수와 바인딩
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -85,6 +93,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(class UInputComponent* Player
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderMove);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::QuaterMove);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
 
 }
 
@@ -188,4 +197,9 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 	//현재 회전 방향을 forward방향으로
 	GetController()->SetControlRotation(FRotationMatrix::MakeFromX(MoveDirection).Rotator());
 	AddMovementInput(MoveDirection, MovementVectorSize);
+}
+
+void AABCharacterPlayer::Attack()
+{
+	ProcessComboCommand();
 }
